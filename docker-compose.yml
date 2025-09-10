@@ -454,18 +454,24 @@ services:
       #   - "${HTTP_BIND:-}:${HTTP_PORT:-80}:${HTTP_PORT:-80}"
       restart: always
       labels:
-        # Permet à Traefik de détecter ce service
         - "traefik.enable=true"
-        # Règle pour le trafic HTTP
         - "traefik.http.routers.mailcow-http.rule=Host(`${MAILCOW_HOSTNAME}`)"
-        - "traefik.http.routers.mailcow-http.entrypoints=web"
-        - "traefik.http.routers.mailcow-http.middlewares=traefik-redirect-to-https"
-        # Règle pour le trafic HTTPS avec certificat Let's Encrypt
-        - "traefik.http.routers.mailcow-https.rule=Host(`${MAILCOW_HOSTNAME}`)"
-        - "traefik.http.routers.mailcow-https.entrypoints=websecure"
-        - "traefik.http.routers.mailcow-https.tls.certresolver=letsencrypt"
-        # Indique à Traefik d'envoyer le trafic au port 80 du conteneur Nginx
-        - "traefik.http.services.mailcow.loadbalancer.server.port=80"
+        - "traefik.http.routers.mailcow-http.entrypoints=web,websecure"
+        # - "traefik.http.routers.mailcow-http.tls=true"
+        - "traefik.http.routers.mailcow-http.tls.certresolver=myresolver"
+        - "traefik.http.services.mailcow-http.loadbalancer.server.port=80"
+
+        # ---------------------
+        - "traefik.http.routers.mailcow-www.rule=Host(`www.${MAILCOW_HOSTNAME}`)"
+        - "traefik.http.routers.mailcow-www.entrypoints=web,websecure"
+        # - "traefik.http.routers.mailcow-www.tls=true"
+        - "traefik.http.routers.mailcow-www.tls.certresolver=myresolver"
+        - "traefik.http.routers.mailcow-www.middlewares=mailcow-www-redirect@docker"
+
+        - "traefik.http.middlewares.mailcow-www-redirect.redirectregex.regex=^https://www\\.${MAILCOW_HOSTNAME}(.*)"
+        - "traefik.http.middlewares.mailcow-www-redirect.redirectregex.replacement=https://${MAILCOW_HOSTNAME}$${1}"
+        - "traefik.http.middlewares.mailcow-www-redirect.redirectregex.permanent=true"
+        
       networks:
         - mailcow-network
         - traefik_proxy #
