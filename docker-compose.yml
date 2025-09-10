@@ -328,11 +328,11 @@ services:
         ofelia.job-exec.dovecot_repl_health.command: "/bin/bash -c \"/usr/local/bin/gosu vmail /usr/local/bin/repl_health.sh\""
         # traefik
         traefik.enable: "true"
-        traefik.tcp.routers.mailcow-imaps.rule: "HostSNI(`webmail.local`)"
+        traefik.tcp.routers.mailcow-imaps.rule: "HostSNI(`${MAILCOW_HOSTNAME}`)"
         traefik.tcp.routers.mailcow-imaps.entrypoints: "imaps"
         traefik.tcp.routers.mailcow-imaps.tls.passthrough: "true"
         traefik.tcp.services.mailcow-imaps.loadbalancer.server.port: "993"
-        traefik.tcp.routers.mailcow-pop3s.rule: "HostSNI(`webmail.local`)"
+        traefik.tcp.routers.mailcow-pop3s.rule: "HostSNI(`${MAILCOW_HOSTNAME}`)"
         traefik.tcp.routers.mailcow-pop3s.entrypoints: "pop3s"
         traefik.tcp.routers.mailcow-pop3s.tls.passthrough: "true"
         traefik.tcp.services.mailcow-pop3s.loadbalancer.server.port: "995"
@@ -383,19 +383,19 @@ services:
       
       labels:
         # SMTP
-        - "traefik.tcp.routers.mailcow-smtp.rule=HostSNI(`webmail.local`)"
+        - "traefik.tcp.routers.mailcow-smtp.rule=HostSNI(`${MAILCOW_HOSTNAME}`)"
         - "traefik.tcp.routers.mailcow-smtp.entrypoints=smtp"
         - "traefik.tcp.routers.mailcow-smtp.tls.passthrough=true"
         - "traefik.tcp.services.mailcow-smtp.loadbalancer.server.port=25"
 
         # SMTPS
-        - "traefik.tcp.routers.mailcow-smtps.rule=HostSNI(`webmail.local`)"
+        - "traefik.tcp.routers.mailcow-smtps.rule=HostSNI(`${MAILCOW_HOSTNAME}`)"
         - "traefik.tcp.routers.mailcow-smtps.entrypoints=smtps"
         - "traefik.tcp.routers.mailcow-smtps.tls.passthrough=true"
         - "traefik.tcp.services.mailcow-smtps.loadbalancer.server.port=465"
 
         # Submission
-        - "traefik.tcp.routers.mailcow-submission.rule=HostSNI(`webmail.local`)"
+        - "traefik.tcp.routers.mailcow-submission.rule=HostSNI(`${MAILCOW_HOSTNAME}`)"
         - "traefik.tcp.routers.mailcow-submission.entrypoints=submission"
         - "traefik.tcp.routers.mailcow-submission.tls.passthrough=true"
         - "traefik.tcp.services.mailcow-submission.loadbalancer.server.port=587"
@@ -457,11 +457,11 @@ services:
         # Permet à Traefik de détecter ce service
         - "traefik.enable=true"
         # Règle pour le trafic HTTP
-        - "traefik.http.routers.mailcow-http.rule=Host(`webmail.local`)"
+        - "traefik.http.routers.mailcow-http.rule=Host(`${MAILCOW_HOSTNAME}`)"
         - "traefik.http.routers.mailcow-http.entrypoints=web"
         - "traefik.http.routers.mailcow-http.middlewares=traefik-redirect-to-https"
         # Règle pour le trafic HTTPS avec certificat Let's Encrypt
-        - "traefik.http.routers.mailcow-https.rule=Host(`webmail.local`)"
+        - "traefik.http.routers.mailcow-https.rule=Host(`${MAILCOW_HOSTNAME}`)"
         - "traefik.http.routers.mailcow-https.entrypoints=websecure"
         - "traefik.http.routers.mailcow-https.tls.certresolver=letsencrypt"
         # Indique à Traefik d'envoyer le trafic au port 80 du conteneur Nginx
